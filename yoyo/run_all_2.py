@@ -10,13 +10,14 @@ import os
 reload(sys)
 sys.setdefaultencoding('utf8')
 
+sys.path.append(r'D:\yoyo\yoyo\case\case')
 # 这个是优化版执行所有用例并发送报告，分四个步骤
 # 第一步加载用例
 # 第二步执行用例
 # 第三步获取最新测试报告
 # 第四步发送邮箱 （这一步不想执行的话，可以注释掉最后面那个函数就行）
 
-def add_case(case_path, rule):
+def add_case(case_path, rule='test*.py'):
     '''加载所有的测试用例'''
     testunit = unittest.TestSuite()
     # 定义discover方法的参数
@@ -37,8 +38,8 @@ def run_case(all_case, report_path):
     # report_abspath = "D:\\web_project\\report\\"+now+"result.html"
     fp = open(report_abspath, "wb")
     runner = HTMLTestRunner.HTMLTestRunner(stream=fp,
-                                           title=u'自动化测试报告,测试结果如下：',
-                                           description=u'用例执行情况：')
+                                           title=u'auto_unit_test_report：',
+                                           description=u'status show as below：')
 
     # 调用add_case函数返回值
     runner.run(all_case)
@@ -48,7 +49,7 @@ def get_report_file(report_path):
     '''获取最新的测试报告'''
     lists = os.listdir(report_path)
     lists.sort(key=lambda fn: os.path.getmtime(os.path.join(report_path, fn)))
-    print (u'最新测试生成的报告： '+lists[-1])
+    print (u'The newest report is ： '+lists[-1])
     # 找到最新生成的报告文件
     report_file = os.path.join(report_path, lists[-1])
     return report_file
@@ -61,7 +62,7 @@ def send_mail(sender, psw, receiver, smtpserver, report_file):
     # 定义邮件内容
     msg = MIMEMultipart()
     body = MIMEText(mail_body, _subtype='html', _charset='utf-8')
-    msg['Subject'] = u"auto_test report"+now
+    msg['Subject'] = u"auto_test report"
     msg["from"] = sender
     msg["to"] = ','.join(receiver)
     # 加上时间戳
@@ -85,18 +86,19 @@ def send_mail(sender, psw, receiver, smtpserver, report_file):
 
 if __name__ == "__main__":
     # 测试用例的路径、匹配规则
-    case_path = "D:\\new_pro\\case"
+    case_path = r"D:\yoyo\yoyo\case\login"
     rule = "test*.py"
     all_case = add_case(case_path, rule)   # 加载用例
     # 生成测试报告的路径
-    report_path = "D:\\new_pro\\report"
+    report_path = r"D:\yoyo\yoyo\report"
     run_case(all_case, report_path)        # 执行用例
     # 获取最新的测试报告文件
     report_file = get_report_file(report_path)  # 获取最新的测试报告
-    #邮箱配置
-    sender = "dittoyy3991@163.com"
-    psw = "20112011ppp"
-    # 收件人多个时，中间用逗号隔开,如'a@xx.com,b@xx.com'
-    receiver = ["Ditto.He@r-pac.com.cn","969956574@qq.com"]
-    smtp_server = 'smtp.163.com'
-    send_mail(sender, psw, receiver, smtp_server, report_file)  # 最后一步发送报告
+
+    # #邮箱配置
+    # sender = "dittoyy3991@163.com"
+    # psw = "20112011ppp"
+    # # 收件人多个时，中间用逗号隔开,如'a@xx.com,b@xx.com'
+    # receiver = ["Ditto.He@r-pac.com.cn","969956574@qq.com"]
+    # smtp_server = 'smtp.163.com'
+    # send_mail(sender, psw, receiver, smtp_server, report_file)  # 最后一步发送报告
